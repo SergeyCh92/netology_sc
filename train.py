@@ -21,7 +21,7 @@ HEADERS = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,imag
            'Upgrade-Insecure-Requests': '1',
            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.85 YaBrowser/21.11.2.773 Yowser/2.5 Safari/537.36',
 }
-KEYWORDS = {'дизайн', 'фото', 'web', 'python', 'финансы в it', 'физика'}
+KEYWORDS = {'дизайн', 'фото', 'web', 'python', 'финансы в it', 'физика', 'ltv'}
 response = requests.get(URL, headers=HEADERS)
 text = response.text
 response.raise_for_status()
@@ -32,7 +32,19 @@ for article in articles:
     hubs = article.find_all('a', class_='tm-article-snippet__hubs-item-link')
     hubs = [hub.find('span').text.lower() for hub in hubs]
     hubs = set(hubs)
-    if KEYWORDS & hubs:
+    title_text = article.find('h2', class_='tm-article-snippet__title').text.lower()
+    body_text = article.find_all('p')
+    content = []
+    for text in body_text:
+        content.append(text.text)
+    content = ' '.join(content)
+    content = content.lower()
+    flag_existence = False
+    for el in KEYWORDS:
+        if el in content:
+            flag_existence = True
+            break
+    if KEYWORDS & hubs or flag_existence:
         title = article.find('a', class_="tm-article-snippet__title-link")
         article_new = title.find('span').text
         date = article.find('time')['title']
@@ -40,4 +52,5 @@ for article in articles:
         link = link.find('a')['href']
         result = f'{date} - {article_new} - https://habr.com{link}'
         print(result)
+        print()
         print('----------------------------')
